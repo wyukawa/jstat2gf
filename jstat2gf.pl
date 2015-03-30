@@ -49,7 +49,7 @@ my %colors = (
 
 my $gccapacities = cap_jstat('gccapacity',$jvmpid);
 die "fetch gccapacity failed" unless $gccapacities;
-($st{new_max},$st{new_commit},$st{old_max},$st{old_commit},$st{meta_max},$st{meta_commit}) = @$gccapacities[1,2,7,8,11,12];
+($st{new_max},$st{new_commit},$st{old_max},$st{old_commit},$st{meta_max},$st{meta_commit}) = @$gccapacities[1,2,8,9,11,12];
 
 my $gcolds = cap_jstat('gcold',$jvmpid);
 die "fetch gcold failed" unless $gcolds;

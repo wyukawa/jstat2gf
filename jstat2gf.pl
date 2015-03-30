@@ -32,9 +32,9 @@ else {
 my %st;
 my %ids;
 my %colors = (
-    perm_max => '#1111cc',
-    perm_commit => '#11cc11',
-    perm_used => '#cccc77',
+    meta_max => '#1111cc',
+    meta_commit => '#11cc11',
+    meta_used => '#cccc77',
     old_max => '#1111cc',
     old_commit => '#11cc11',
     old_used => '#cccc77',
@@ -49,11 +49,11 @@ my %colors = (
 
 my $gccapacities = cap_jstat('gccapacity',$jvmpid);
 die "fetch gccapacity failed" unless $gccapacities;
-($st{new_max},$st{new_commit},$st{old_max},$st{old_commit},$st{perm_max},$st{perm_commit}) = @$gccapacities[1,2,7,8,11,12];
+($st{new_max},$st{new_commit},$st{old_max},$st{old_commit},$st{meta_max},$st{meta_commit}) = @$gccapacities[1,2,7,8,11,12];
 
 my $gcolds = cap_jstat('gcold',$jvmpid);
 die "fetch gcold failed" unless $gcolds;
-($st{perm_used}, $st{old_used}) = @$gcolds[1,3];
+($st{meta_used}, $st{old_used}) = @$gcolds[1,5];
 
 my $gcnews = cap_jstat('gcnew',$jvmpid);
 die "fetch gcnew failed" unless $gcnews;
@@ -61,7 +61,7 @@ die "fetch gcnew failed" unless $gcnews;
 
 my $fgcs = cap_jstat('gc',$jvmpid);
 die "fetch gc failed" unless $fgcs;
-($st{fgc_times},$st{fgc_sec}) = ($fgcs->[12], $fgcs->[13]*1000);
+($st{fgc_times},$st{fgc_sec}) = ($fgcs->[14], $fgcs->[15]*1000);
 
 my $ua = HTTP::Tiny->new(
     agent => 'jstat2gf',
@@ -112,21 +112,21 @@ foreach my $key ( keys %st ) {
 }
 
 
-#complex perm
+#complex meta
 {
-    my $key = 'permanent';
+    my $key = 'metaspace';
     my $json = get_json($ua, $gfbase . 'json/complex/' . $gfservice . '/' . $gfsection . '/' . $gfprefix.$key);
     if ( !$json ) {
         $json = {
             service_name => $gfservice,
             section_name => $gfsection,
             graph_name => $gfprefix.$key,
-            description => 'JVM memory KB (permanent)',
+            description => 'JVM memory KB (metaspace)',
             sort => 17,
             data => [
-                { graph_id => $ids{perm_commit}, type => 'AREA', gmode => 'gauge' ,stack => 0  },
-                { graph_id => $ids{perm_max}, type => 'LINE1', gmode => 'gauge' ,stack => 0  },
-                { graph_id => $ids{perm_used}, type => 'AREA', gmode => 'gauge' ,stack => 0  }
+                { graph_id => $ids{meta_commit}, type => 'AREA', gmode => 'gauge' ,stack => 0  },
+                { graph_id => $ids{meta_max}, type => 'LINE1', gmode => 'gauge' ,stack => 0  },
+                { graph_id => $ids{meta_used}, type => 'AREA', gmode => 'gauge' ,stack => 0  }
             ],
         };
         post_json($ua, $gfbase . 'json/create/complex', $json);
